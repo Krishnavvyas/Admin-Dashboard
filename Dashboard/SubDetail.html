@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script >
+        const queryString = window.location.search;
+        console.log(queryString);
+        var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&'); 
+
+        document.write("welcome "+url);
+ 
+
+</script>
+    <script src="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="cs.css">
+    <script type="text/javascript">
+        function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+    </script>
+ 
+ 
+
+    
+
+    <script type="text/javascript">document.getElementById("write").innerHTML = window.location.search; </script>
+    
+</head>
+<body>
+    <h3 align="right"><a href="login.html">Logout</a></h3>
+    <p id="here"></p>
+    <br>
+    <h1><center>Subscription Details</center></h1>
+    
+
+
+
+
+<table class="display" id="example" style="width:100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Email</th>
+                <th>Amount/subscription</th>
+                <th>Renewal Date</th>
+                <th>Renews in</th>
+                <th>Payment Type</th>
+            </tr>
+        </thead>
+
+    </table>
+
+
+
+<script>
+
+
+
+    function renew(input){
+
+debugger;
+        var date1, date2;  
+        date1 = new Date();
+        
+         //return ""+date1);
+        date2 = input;
+
+        //date3=date2.getDate();
+        //return ""+date3);
+
+        var res = Math.abs(date2 - date1) / 1000;
+
+         
+         // get total days between two dates
+        var days = Math.floor(res / 86400);
+        if(days<=1){
+                     // get hours        
+            var hours = Math.floor(res / 3600) % 24;        
+            return "<br>"+hours+" Hrs left"; 
+
+            }
+        else if (days>=2 && days<30){
+            return "<br>"+days+" Days left"; 
+        }        
+        else if (days==30){
+
+          //get total months between 2 dates
+            var difference = Math.floor((date2.getDate() - date1.getDate()) / 30 +
+            date2.getMonth() - date1.getMonth() +
+            (12 * (date2.getFullYear() - date1.getFullYear())));
+            return "<br>"+difference+" Month left";
+        }
+        else if(days>30 && days<=365){
+            var difference = Math.floor((date2.getDate() - date1.getDate()) / 30 +
+            date2.getMonth() - date1.getMonth() +
+            (12 * (date2.getFullYear() - date1.getFullYear())));
+            return "<br>"+difference+" Months left";
+        }   
+        else{
+                //get years
+            var years=Math.floor(days/365.25);
+            return "<br>"+years+" Year left"; 
+        }
+    }
+        
+
+                                
+ 
+         
+         // get minutes
+    //     var minutes = Math.floor(res / 60) % 60;
+    //     return "<br>Difference (Minutes): "+minutes);  
+     
+         // get seconds
+    //     var seconds = res % 60;
+    //     return "<br>Difference (Seconds): "+seconds); 
+
+    
+/* Formatting function for row details - modify as you need */
+function format ( d ) {
+    // `d` is the original data object for the row
+    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+        '<tr>'+
+            '<td>Full name:</td>'+
+            '<td>'+d.Firstname + d.Lastname+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Transaction details:</td>'+
+            '<td>'+d.det+'</td>'+
+        '</tr>'+
+                '<tr>'+
+            '<td>Payment Date:</td>'+
+            '<td>'+d.date+'</td>'+
+        '</tr>'+
+    '</table>';
+}
+ 
+$(document).ready(function() {
+    var table = $('#example').DataTable( {
+        "ajax": "subscriberdetails.json",
+        "columns": [
+            {
+                "className":      'details-control',
+                "orderable":      false,
+                "data":           null,
+                "defaultContent": ''
+            },
+            { "data": "Firstname" },
+            { "data": "Lastname" },
+            { "data": "Email" },
+            { "data": "Amount" },
+            { "data": "Renewaldate" },
+            { "data": "res" },
+            { "data": "PaymentType" }
+            
+        ],
+        "order": [[1, 'asc']],
+
+        "columnDefs": [ 
+            {
+                // The `data` parameter refers to the data for the cell (defined by the
+                // `data` option, which defaults to the column being worked with, in
+                // this case `data: 0`.
+                "render": function ( data, type, row ) {
+
+                    var dt=new Date(row.Renewaldate);
+                    var output= renew(dt);
+                    return output;
+                },
+                "targets": 6
+            }
+        ]
+    } );
+
+    
+     
+    // Add event listener for opening and closing details
+    $('#example tbody').on('click', 'td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = table.row( tr );
+ 
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            row.child( format(row.data()) ).show();
+            tr.addClass('shown');
+        }
+    } );
+    } );
+
+
+
+</script>
+
+</body>
+</html>
